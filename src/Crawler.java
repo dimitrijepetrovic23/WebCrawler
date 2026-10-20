@@ -9,7 +9,7 @@ public class Crawler {
     Crawler(){
         client = HttpClient.newHttpClient();
     }
-    String crawl(String x) throws IOException, InterruptedException {
+    String[] crawl(String x) throws IOException, InterruptedException {
         HttpRequest request = HttpRequest.newBuilder()
             .uri(URI.create(x))
                 .GET()
@@ -18,6 +18,6 @@ public class Crawler {
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
 
-        return response.body() + "Status code: " + response.statusCode();
+        return new String[] {response.body(), String.valueOf(response.statusCode())};
     }
 }

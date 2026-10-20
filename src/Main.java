@@ -7,23 +7,26 @@ import java.util.regex.Pattern;
 public class Main {
     public static void main(String[] args) {
         String htmlResponse;
+        String htmlStatuscode;
         StringBuffer response;
-        String regex = "https://www\\.famnit\\.upr\\.si/[^\\s\"']*";
-        Pattern pattern = Pattern.compile(regex);
-        Matcher matcher;
         Scanner scan = new Scanner(System.in);
         System.out.print("Input a URL: ");
         String URL = scan.next();
         Crawler crawler = new Crawler();
         System.out.println("Crawling through domain " + URL);
         try {
-            htmlResponse = crawler.crawl(URL);
+            String[] crawler_response = crawler.crawl(URL);
+            htmlResponse = crawler_response[0];
+            htmlStatuscode = crawler_response[1];
         } catch (IOException | InterruptedException e) {
             System.out.println(e.getMessage());
             throw new RuntimeException(e);
         }
         response = new StringBuffer(htmlResponse.length());
         response.insert(0,htmlResponse);
+        String regex = URL + "[^\\s\"'<>\\\\()`;{}]+";
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher;
         matcher = pattern.matcher(response);
         ArrayList<String> links = new ArrayList<>();
         while(matcher.find()){
@@ -33,8 +36,17 @@ public class Main {
             }
             links.add(link);
         }
-        for(String i : links){
-            System.out.println(i);
+
+        for(String link : links){
+            try {
+                String[] crawler_response = crawler.crawl(link);
+                htmlResponse = crawler_response[0];
+                htmlStatuscode = crawler_response[1];
+            } catch (IOException | InterruptedException e) {
+                System.out.println(e.getMessage());
+                throw new RuntimeException(e);
+            }
+            System.out.println(link + " status code: " + htmlStatuscode);
         }
         scan.close();
     }
